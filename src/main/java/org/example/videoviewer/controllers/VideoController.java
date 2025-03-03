@@ -1,5 +1,6 @@
 package org.example.videoviewer.controllers;
 
+import org.example.videoviewer.models.File;
 import org.example.videoviewer.services.VideoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -13,9 +14,15 @@ public class VideoController {
     @Autowired
     VideoService videoService;
 
-    @GetMapping(value = "/default/video/{fileName}", produces = "video/mp4")
-    public Mono<Resource> defaultVideo(@PathVariable("fileName") String fileName, @RequestHeader("Range") String range) throws IOException {
+//    @GetMapping(value = "/default/video/{fileName}", produces = "video/mp4")
+//    public Mono<Resource> defaultVideo(@PathVariable("fileName") String fileName, @RequestHeader("Range") String range) throws IOException {
+//        System.out.println("Playing video in range " + range);
+//        return videoService.getVideo(fileName);
+//    }
+
+    @GetMapping(value = "/video/play", produces = "video/mp4")
+    public Mono<Resource> playVideo(@RequestBody File videoFile, @RequestHeader("Range") String range) throws IOException {
         System.out.println("Playing video in range " + range);
-        return videoService.getVideo(fileName);
+        return videoService.getVideo(videoFile);
     }
 }
