@@ -37,12 +37,9 @@ public class VideoService {
 @Value("${home.dir}")
 private String homeDir;
 
-public Mono<Resource> getVideo(File videoFile) throws IOException {
-    if (videoFile.getType().equals(FileType.VIDEO)) {
-        var video = new FileSystemResource(getPath(videoFile.getPath()));
+public Mono<Resource> getVideo(String videoPath) throws IOException {
+        var video = new FileSystemResource(getPath(videoPath));
         return Mono.fromSupplier(() -> video);
-    }
-    return Mono.empty();
 }
 
     private String getPath(String path) {

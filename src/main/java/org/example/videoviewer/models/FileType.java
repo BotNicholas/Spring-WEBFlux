@@ -9,7 +9,7 @@ public enum FileType {
     OTHER_FILE;
 
     public static FileType getTypeFor(String file) {
-        if (file == null) {
+        if ("directory".equals(file)) {
             return DIRECTORY;
         }
         if (file.matches("text/.+")) {
