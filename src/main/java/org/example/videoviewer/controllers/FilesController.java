@@ -1,5 +1,7 @@
 package org.example.videoviewer.controllers;
 
+import org.example.videoviewer.models.CreateDirectoryRequest;
+import org.example.videoviewer.models.CreateFileRequest;
 import org.example.videoviewer.models.File;
 import org.example.videoviewer.models.FileType;
 import org.example.videoviewer.models.FilesRequest;
@@ -10,8 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -76,7 +81,15 @@ public class FilesController {
         }
     }
 
+    @PostMapping("/create/directory")
+    public ResponseEntity<File> createDirectory(@RequestBody CreateDirectoryRequest request) throws IOException {
+        return filesService.createDirectoryAt(request.getPath(), request.getName());
+    }
 
+    @PostMapping("/import/file")
+    public ResponseEntity<File> importFile(@RequestPart(value = "metadata") CreateFileRequest request, @RequestPart(value = "file") MultipartFile file) throws IOException {
+        return filesService.importFile(request, file);
+    }
 
     private String normalizePath(String path) {
         return path.replaceAll("\\.+/", "/");
