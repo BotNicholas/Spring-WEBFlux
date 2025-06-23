@@ -86,7 +86,7 @@ public class FilesController {
         return filesService.createDirectoryAt(request.getPath(), request.getName());
     }
 
-    @PostMapping("/import/files")
+    @PostMapping("/import")
     public ResponseEntity<List<File>> importFile(@RequestPart(value = "metadata") CreateFileRequest request, @RequestPart(value = "files") List<MultipartFile> files) throws IOException {
         return filesService.importFiles(request, files);
     }
