@@ -87,8 +87,20 @@ public class FilesController {
     }
 
     @PostMapping("/import")
-    public ResponseEntity<List<File>> importFile(@RequestPart(value = "metadata") CreateFileRequest request, @RequestPart(value = "files") List<MultipartFile> files) throws IOException {
+    public ResponseEntity<List<File>> importFile(@RequestPart(value = "metadata") FilesRequest request, @RequestPart(value = "files") List<MultipartFile> files) throws IOException {
         return filesService.importFiles(request, files);
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Void> deleteFile(@RequestParam String path) throws IOException {
+        try {
+            return filesService.deleteFile(new String(Base64.getDecoder().decode(path)));
+        } catch (Exception e) {
+            if (e.getMessage().contains("Illegal base64 character")) {
+                throw new RuntimeException("Illegal base64 encoding");
+            }
+            throw new RuntimeException(e);
+        }
     }
 
     private String normalizePath(String path) {

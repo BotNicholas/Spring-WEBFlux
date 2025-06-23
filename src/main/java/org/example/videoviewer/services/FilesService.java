@@ -1,9 +1,11 @@
 package org.example.videoviewer.services;
 
 import org.example.videoviewer.exceptions.FileExistsException;
+import org.example.videoviewer.exceptions.FileNotFoundException;
 import org.example.videoviewer.exceptions.WrongMetadataException;
 import org.example.videoviewer.models.CreateFileRequest;
 import org.example.videoviewer.models.FileType;
+import org.example.videoviewer.models.FilesRequest;
 import org.example.videoviewer.models.PageFilesResponse;
 import org.example.videoviewer.utils.NaturalOrderComparator;
 import org.imgscalr.Scalr;
@@ -112,7 +114,7 @@ public class FilesService {
         return ResponseEntity.status(HttpStatus.CREATED).body(dirResponse);
     }
 
-    public ResponseEntity<List<org.example.videoviewer.models.File>> importFiles(final CreateFileRequest request, final List<MultipartFile> files) throws IOException {
+    public ResponseEntity<List<org.example.videoviewer.models.File>> importFiles(final FilesRequest request, final List<MultipartFile> files) throws IOException {
         var filesList = new ArrayList<org.example.videoviewer.models.File>();
         for (MultipartFile file : files) {
             filesList.add(importFile(request, file).getBody());
@@ -120,7 +122,7 @@ public class FilesService {
         return ResponseEntity.status(HttpStatus.CREATED).body(filesList);
     }
 
-    public ResponseEntity<org.example.videoviewer.models.File> importFile(final CreateFileRequest metadata, final MultipartFile file) throws IOException {
+    public ResponseEntity<org.example.videoviewer.models.File> importFile(final FilesRequest metadata, final MultipartFile file) throws IOException {
         var normalizedPath = Paths.get(getPath(metadata.getPath()), file.getOriginalFilename());
 
 //        if (!file.getOriginalFilename().matches(String.format("%s\\..+", metadata.getName()))) {
@@ -143,6 +145,32 @@ public class FilesService {
                 newFile.getTotalSpace());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(fileResponse);
+    }
+
+    public ResponseEntity<Void> deleteFile(final String path) throws IOException {
+        var normalizedPath = Paths.get(getPath(path));
+
+        if (!Files.exists(normalizedPath)) {
+            throw new FileNotFoundException(normalizedPath.getFileName().toString());
+        }
+
+        deleteRecursively(new File(normalizedPath.toUri()));
+
+        return ResponseEntity.noContent().build();
+    }
+
+    private void deleteRecursively(final File file) throws IOException {
+        if (file.isDirectory()) {
+            var innerFiles = file.listFiles();
+
+            for (var innerFile : innerFiles) {
+                deleteRecursively(innerFile);
+            }
+
+            file.delete();
+        } else {
+            file.delete();
+        }
     }
 
     private String getFileName(String fileName) {
