@@ -24,7 +24,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import javax.imageio.ImageIO;
 
 @Service
@@ -109,15 +112,23 @@ public class FilesService {
         return ResponseEntity.status(HttpStatus.CREATED).body(dirResponse);
     }
 
+    public ResponseEntity<List<org.example.videoviewer.models.File>> importFiles(final CreateFileRequest request, final List<MultipartFile> files) throws IOException {
+        var filesList = new ArrayList<org.example.videoviewer.models.File>();
+        for (MultipartFile file : files) {
+            filesList.add(importFile(request, file).getBody());
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(filesList);
+    }
+
     public ResponseEntity<org.example.videoviewer.models.File> importFile(final CreateFileRequest metadata, final MultipartFile file) throws IOException {
         var normalizedPath = Paths.get(getPath(metadata.getPath()), file.getOriginalFilename());
 
-        if (!file.getOriginalFilename().matches(String.format("%s\\..+", metadata.getName()))) {
-            throw new WrongMetadataException(String.format("'%s' File name from metadata does not match actual file name '%s'.", metadata.getName(), getFileName(file.getOriginalFilename())));
-        }
+//        if (!file.getOriginalFilename().matches(String.format("%s\\..+", metadata.getName()))) {
+//            throw new WrongMetadataException(String.format("'%s' File name from metadata does not match actual file name '%s'.", metadata.getName(), getFileName(file.getOriginalFilename())));
+//        }
 
         if (Files.exists(normalizedPath)) {
-            throw new FileExistsException(metadata.getName());
+            throw new FileExistsException(file.getOriginalFilename());
         }
 
         var newFilePath = Files.write(normalizedPath, file.getBytes());

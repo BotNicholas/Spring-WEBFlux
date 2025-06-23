@@ -86,9 +86,9 @@ public class FilesController {
         return filesService.createDirectoryAt(request.getPath(), request.getName());
     }
 
-    @PostMapping("/import/file")
-    public ResponseEntity<File> importFile(@RequestPart(value = "metadata") CreateFileRequest request, @RequestPart(value = "file") MultipartFile file) throws IOException {
-        return filesService.importFile(request, file);
+    @PostMapping("/import/files")
+    public ResponseEntity<List<File>> importFile(@RequestPart(value = "metadata") CreateFileRequest request, @RequestPart(value = "files") List<MultipartFile> files) throws IOException {
+        return filesService.importFiles(request, files);
     }
 
     private String normalizePath(String path) {
